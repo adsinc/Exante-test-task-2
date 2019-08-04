@@ -1,14 +1,12 @@
-package client
+package server
 
 import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import server.Data
 
-class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
-
+class UpstreamClient(remote: InetSocketAddress, listener: ActorRef) extends Actor with ActorLogging {
   import Tcp._
   import context.system
 
@@ -18,9 +16,11 @@ class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
 
   def connecting: Receive = {
     case CommandFailed(_: Connect) =>
+      listener ! "connect failed"
       context.stop(self)
 
     case c@Connected(remote, local) =>
+      listener ! c
       val connection = sender()
       connection ! Register(self)
       context.become(processMessages(connection))
@@ -30,21 +30,20 @@ class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
     case data: ByteString =>
       connection ! Write(data)
     case CommandFailed(w: Write) =>
-    // O/S buffer was full
-    //      listener ! "write failed"
+      // O/S buffer was full
+      listener ! "write failed"
     case Received(bytes) =>
-      // todo
-      println(bytes.utf8String)
+      listener ! Data.convert(bytes)
     case "close" =>
       connection ! Close
     case _: ConnectionClosed =>
       // todo обработать ошибку соединения
-//      listener ! "connection closed"
+      listener ! "connection closed"
       context.stop(self)
   }
 }
 
-object Client {
-  def props(remote: InetSocketAddress) =
-    Props(new Client(remote))
+object UpstreamClient {
+  def props(remote: InetSocketAddress, replies: ActorRef) =
+    Props(new UpstreamClient(remote, replies))
 }
