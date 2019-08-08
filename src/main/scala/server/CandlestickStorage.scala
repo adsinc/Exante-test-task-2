@@ -23,7 +23,9 @@ class CandlestickStorage private(storage: TreeMap[Instant, TreeMap[Ticker, Candl
 
   def tryRemoveOldCandlesticks(implicit currentTime: Instant): CandlestickStorage = {
     val minTimeStamp = minStoredTimestamp(currentTime)
-    new CandlestickStorage(storage.takeWhile(_._1 >= minTimeStamp), historyLen)
+    // todo тут ошибка
+    // todo еще ошибка при очистке
+    new CandlestickStorage(storage.dropWhile(_._1 <= minTimeStamp), historyLen)
   }
 
   private def minStoredTimestamp(currentTime: Instant): Instant =

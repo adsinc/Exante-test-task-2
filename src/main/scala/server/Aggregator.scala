@@ -24,7 +24,7 @@ class Aggregator(historyLen: Int) extends Actor with ActorLogging {
 
     case NewClientConnected(client) =>
       log.info(s"Client connected: $client")
-      sender() ! packToMessage(storage.actualCandlesticks)
+      client ! packToMessage(storage.actualCandlesticks)
       context become aggregate(storage, clients + client)
 
     case Connected(remoteAddress, _) =>
