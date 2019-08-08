@@ -1,11 +1,11 @@
-package server
+package server.actor
 
 import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import server.Data.Transactions
+import server.data.Data.Transactions
 
 class UpstreamClient(remote: InetSocketAddress, listener: ActorRef) extends Actor with ActorLogging {
   import Tcp._

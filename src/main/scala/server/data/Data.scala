@@ -1,9 +1,9 @@
-package server
+package server.data
 
 import java.time.Instant
 
 import akka.util.ByteString
-import server.Data.Transactions.Transaction
+import server.data.Data.Transactions.Transaction
 
 object Data {
   type Ticker = String

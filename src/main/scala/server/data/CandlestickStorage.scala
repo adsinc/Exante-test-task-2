@@ -1,11 +1,11 @@
-package server
+package server.data
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit.MINUTES
 
-import server.Data.Candlesticks.Candlestick
-import server.Data.Transactions.Transaction
-import server.Data.{Candlesticks, _}
+import server.data.Data.Candlesticks.Candlestick
+import server.data.Data.Transactions.Transaction
+import server.data.Data.{Candlesticks, _}
 
 import scala.collection.immutable.TreeMap
 import scala.math.Ordering.Implicits._

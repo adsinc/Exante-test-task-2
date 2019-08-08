@@ -4,7 +4,8 @@ import java.net.InetSocketAddress
 import java.time.LocalDateTime
 
 import akka.actor.{ActorRef, ActorSystem}
-import server.Aggregator.NewMinuteStarted
+import server.actor.Aggregator.NewMinuteStarted
+import server.actor.{Aggregator, Server, UpstreamClient}
 
 import scala.concurrent.duration.DurationDouble
 
@@ -16,6 +17,5 @@ object ServerMain extends App {
   system.actorOf(Server.props(new InetSocketAddress("127.0.0.1", 7777), aggregator), "server")
 
   import system.dispatcher
-
   system.scheduler.schedule(1.minute - LocalDateTime.now().getSecond.seconds, 1.minute, aggregator, NewMinuteStarted)
 }

@@ -1,4 +1,4 @@
-package server
+package server.actor
 
 import java.time.Instant
 
@@ -7,10 +7,11 @@ import akka.io.Tcp.{Connected, PeerClosed, Write}
 import akka.util.ByteString
 import io.circe.generic.auto._
 import io.circe.syntax._
-import server.Aggregator.NewMinuteStarted
-import server.Data.Candlesticks.Candlestick
-import server.Data.Transactions.Transaction
-import server.Server.NewClientConnected
+import server.actor.Aggregator.NewMinuteStarted
+import server.actor.Server.NewClientConnected
+import server.data.CandlestickStorage
+import server.data.Data.Candlesticks.Candlestick
+import server.data.Data.Transactions.Transaction
 
 class Aggregator(historyLen: Int) extends Actor with ActorLogging {
   implicit def currentTime: Instant = Instant.now()

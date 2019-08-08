@@ -3,6 +3,7 @@ package client
 import java.net.InetSocketAddress
 
 import akka.actor.ActorSystem
+import client.actor.Client
 
 object ClientMain extends App {
   val system: ActorSystem = ActorSystem("client-system")

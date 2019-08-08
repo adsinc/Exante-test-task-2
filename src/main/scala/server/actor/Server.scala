@@ -1,10 +1,10 @@
-package server
+package server.actor
 
 import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.{IO, Tcp}
-import server.Server.NewClientConnected
+import server.actor.Server.NewClientConnected
 
 class Server(address: InetSocketAddress, listener: ActorRef) extends Actor {
 
