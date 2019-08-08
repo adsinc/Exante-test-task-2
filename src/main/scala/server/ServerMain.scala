@@ -8,8 +8,9 @@ import server.Aggregator.NewMinuteStarted
 import scala.concurrent.duration.DurationDouble
 
 object ServerMain extends App {
+  val HistoryLen = 10
   val system = ActorSystem("server-system")
-  val aggregator: ActorRef = system.actorOf(Aggregator.props)
+  val aggregator: ActorRef = system.actorOf(Aggregator.props(HistoryLen))
   system.actorOf(UpstreamClient.props(new InetSocketAddress("127.0.0.1", 5555), aggregator))
   system.actorOf(Server.props(new InetSocketAddress("127.0.0.1", 7777), aggregator))
 

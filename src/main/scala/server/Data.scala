@@ -1,24 +1,22 @@
 package server
 
 import java.time.Instant
-import java.util.concurrent.TimeUnit
 
 import akka.util.ByteString
-import server.Data.Timestamps.Timestamp
 import server.Data.Transactions.Transaction
 
 object Data {
   type Ticker = String
 
   object Transactions {
-    final case class Transaction(timestamp: Timestamp, ticker: Ticker, price: Double, size: Int)
+    final case class Transaction(timestamp: Instant, ticker: Ticker, price: Double, size: Int)
 
     // todo test
     // todo check for errors
     def convert(bytes: ByteString): Transaction = {
       val msgData = bytes.drop(2).toByteBuffer
       Transaction(
-        timestamp = msgData.getLong,
+        timestamp = Instant.ofEpochMilli(msgData.getLong),
         ticker = (0 until msgData.getShort).map(_ => msgData.get().toChar).mkString,
         price = msgData.getDouble,
         size = msgData.getInt
@@ -28,7 +26,7 @@ object Data {
 
   object Candlesticks {
     final case class Candlestick(ticker: Ticker,
-                                 timestamp: Timestamp,
+                                 timestamp: Instant,
                                  open: Double,
                                  high: Double,
                                  low: Double,
@@ -43,7 +41,7 @@ object Data {
         volume = transaction.size
       )
 
-    def create(timestamp: Timestamp, message: Transaction): Candlestick =
+    def create(timestamp: Instant, message: Transaction): Candlestick =
       Candlestick(
         ticker = message.ticker,
         timestamp = timestamp,
@@ -54,17 +52,4 @@ object Data {
         volume = message.size
       )
   }
-
-  object Timestamps {
-    type Timestamp = Long
-
-    def trunkToMinutes(timestamp: Timestamp): Timestamp =
-      TimeUnit.MINUTES.toMillis(TimeUnit.MILLISECONDS.toMinutes(timestamp))
-
-    def minStoredTimestamp(currentTime: Timestamp, historyLen: Int): Timestamp =
-      trunkToMinutes(currentTime) - TimeUnit.MINUTES.toMillis(historyLen + 1)
-
-    def currentUtc(): Timestamp = TimeUnit.SECONDS.toMillis(Instant.now().getEpochSecond)
-  }
-
 }

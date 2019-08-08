@@ -5,6 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
+import server.Data.Transactions
 
 class UpstreamClient(remote: InetSocketAddress, listener: ActorRef) extends Actor with ActorLogging {
   import Tcp._
@@ -33,7 +34,7 @@ class UpstreamClient(remote: InetSocketAddress, listener: ActorRef) extends Acto
       // O/S buffer was full
       listener ! "write failed"
     case Received(bytes) =>
-      listener ! Data.convert(bytes)
+      listener ! Transactions.convert(bytes)
     case "close" =>
       connection ! Close
     case _: ConnectionClosed =>
