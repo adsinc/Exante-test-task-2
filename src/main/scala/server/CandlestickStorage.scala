@@ -35,9 +35,11 @@ class CandlestickStorage private(storage: TreeMap[Instant, TreeMap[Ticker, Candl
       candles <- allMinutesCandles.values
     } yield candles
 
-  def prevMinuteCandlesticks(implicit currentTime: Instant): Iterable[Candlestick] = ???
-  //todo
-
+  def prevMinuteCandlesticks(implicit currentTime: Instant): Iterable[Candlestick] =
+    storage
+      .get(currentTime.truncatedTo(MINUTES).minus(1, MINUTES))
+      .map(_.values)
+      .getOrElse(Iterable.empty)
 
 }
 
