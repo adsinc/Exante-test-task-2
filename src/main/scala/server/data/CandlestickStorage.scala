@@ -10,7 +10,7 @@ import server.data.Data.{Candlesticks, _}
 import scala.collection.immutable.TreeMap
 import scala.math.Ordering.Implicits._
 
-class CandlestickStorage private(storage: TreeMap[Instant, TreeMap[Ticker, Candlestick]], historyLen: Int) {
+class CandlestickStorage private(val storage: TreeMap[Instant, TreeMap[Ticker, Candlestick]], historyLen: Int) {
   def updateFrom(msg: Transaction): CandlestickStorage = {
     val trunkedTs = msg.timestamp.truncatedTo(MINUTES)
     val tickerCandlesticks = storage.getOrElse(trunkedTs, TreeMap.empty[Ticker, Candlestick])
