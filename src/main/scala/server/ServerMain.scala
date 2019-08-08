@@ -1,6 +1,7 @@
 package server
 
 import java.net.InetSocketAddress
+import java.time.LocalDateTime
 
 import akka.actor.{ActorRef, ActorSystem}
 import server.Aggregator.NewMinuteStarted
@@ -10,12 +11,11 @@ import scala.concurrent.duration.DurationDouble
 object ServerMain extends App {
   val HistoryLen = 10
   val system = ActorSystem("server-system")
-  val aggregator: ActorRef = system.actorOf(Aggregator.props(HistoryLen))
-  system.actorOf(UpstreamClient.props(new InetSocketAddress("127.0.0.1", 5555), aggregator))
-  system.actorOf(Server.props(new InetSocketAddress("127.0.0.1", 7777), aggregator))
+  val aggregator: ActorRef = system.actorOf(Aggregator.props(HistoryLen), "aggregator")
+  system.actorOf(UpstreamClient.props(new InetSocketAddress("127.0.0.1", 5555), aggregator), "upstream-client")
+  system.actorOf(Server.props(new InetSocketAddress("127.0.0.1", 7777), aggregator), "server")
 
   import system.dispatcher
-  // todo return to normal
-//  system.scheduler.schedule(1.minute - LocalDateTime.now().getSecond.seconds, 1.minute, aggregator, NewMinuteStarted)
-  system.scheduler.schedule(1.seconds, 5.seconds, aggregator, NewMinuteStarted)
+
+  system.scheduler.schedule(1.minute - LocalDateTime.now().getSecond.seconds, 1.minute, aggregator, NewMinuteStarted)
 }

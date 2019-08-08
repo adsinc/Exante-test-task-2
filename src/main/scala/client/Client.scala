@@ -5,13 +5,11 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import server.Data
 
 class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
 
   import Tcp._
   import context.system
-
   IO(Tcp) ! Connect(remote)
 
   def receive: Receive = connecting
@@ -20,7 +18,8 @@ class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
     case CommandFailed(_: Connect) =>
       context.stop(self)
 
-    case c@Connected(remote, local) =>
+    case Connected(remote, _) =>
+      log.info(s"Connected to server $remote")
       val connection = sender()
       connection ! Register(self)
       context.become(processMessages(connection))
