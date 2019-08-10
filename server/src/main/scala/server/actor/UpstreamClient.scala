@@ -18,10 +18,12 @@ class UpstreamClient(remote: InetSocketAddress, listener: ActorRef) extends Acto
 
   def connecting: Receive = {
     case CommandFailed(_: Connect) =>
-      listener ! "connect failed"
+      log.error("Can't connect to upstream server")
       context.stop(self)
+      context.system.terminate()
 
-    case c@Connected(remote, local) =>
+    case c@Connected(_, _) =>
+      log.info("Connected to upstream server")
       listener ! c
       val connection = sender()
       connection ! Register(self)
@@ -31,17 +33,12 @@ class UpstreamClient(remote: InetSocketAddress, listener: ActorRef) extends Acto
   def processMessages(connection: ActorRef): Receive = {
     case data: ByteString =>
       connection ! Write(data)
-    case CommandFailed(w: Write) =>
-      // O/S buffer was full
-      listener ! "write failed"
     case Received(bytes) =>
       listener ! Transactions.convert(bytes)
-    case "close" =>
-      connection ! Close
     case _: ConnectionClosed =>
-      // todo обработать ошибку соединения
-      listener ! "connection closed"
+      log.error("Connection to upstream closed")
       context.stop(self)
+      context.system.terminate()
   }
 }
 

@@ -4,7 +4,6 @@ import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Tcp}
-import akka.util.ByteString
 
 class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
 
@@ -16,7 +15,9 @@ class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
 
   def connecting: Receive = {
     case CommandFailed(_: Connect) =>
+      log.error("Can't connect to server")
       context.stop(self)
+      context.system.terminate()
 
     case Connected(remote, _) =>
       log.info(s"Connected to server $remote")
@@ -26,16 +27,12 @@ class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
   }
 
   def processMessages(connection: ActorRef): Receive = {
-    case data: ByteString =>
-      connection ! Write(data)
     case Received(bytes) =>
       println(bytes.utf8String)
-    case "close" =>
-      connection ! Close
     case _: ConnectionClosed =>
-      // todo обработать ошибку соединения
-//      listener ! "connection closed"
-      context.stop(self)
+      log.error("Connection closed")
+      context.system.stop(self)
+      context.system.terminate()
   }
 }
 
