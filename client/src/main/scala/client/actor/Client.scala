@@ -28,6 +28,8 @@ class Client(remote: InetSocketAddress) extends Actor with ActorLogging {
   def processMessages(connection: ActorRef): Receive = {
     case data: ByteString =>
       connection ! Write(data)
+    case Received(bytes) =>
+      println(bytes.utf8String)
     case "close" =>
       connection ! Close
     case _: ConnectionClosed =>

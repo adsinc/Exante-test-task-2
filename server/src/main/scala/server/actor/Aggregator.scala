@@ -13,8 +13,8 @@ import server.data.CandlestickStorage
 import server.data.Data.Candlesticks.Candlestick
 import server.data.Data.Transactions.Transaction
 
-class Aggregator(historyLen: Int) extends Actor with ActorLogging {
-  implicit def currentTime: Instant = Instant.now()
+class Aggregator(currentTime: => Instant, historyLen: Int) extends Actor with ActorLogging {
+  implicit def time: Instant = currentTime
 
   def receive: Receive = aggregate(CandlestickStorage(historyLen), Set.empty)
 
@@ -57,5 +57,5 @@ class Aggregator(historyLen: Int) extends Actor with ActorLogging {
 object Aggregator {
   case object NewMinuteStarted
 
-  def props(historyLen: Int) = Props(new Aggregator(historyLen))
+  def props(currentTime: => Instant, historyLen: Int) = Props(new Aggregator(currentTime, historyLen))
 }

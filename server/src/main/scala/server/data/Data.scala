@@ -11,8 +11,6 @@ object Data {
   object Transactions {
     final case class Transaction(timestamp: Instant, ticker: Ticker, price: Double, size: Int)
 
-    // todo test
-    // todo check for errors
     def convert(bytes: ByteString): Transaction = {
       val msgData = bytes.drop(2).toByteBuffer
       Transaction(

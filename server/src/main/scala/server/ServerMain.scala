@@ -1,7 +1,7 @@
 package server
 
 import java.net.InetSocketAddress
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 import akka.actor.{ActorRef, ActorSystem}
 import server.actor.Aggregator.NewMinuteStarted
@@ -12,7 +12,7 @@ import scala.concurrent.duration.DurationDouble
 object ServerMain extends App {
   val HistoryLen = 10
   val system = ActorSystem("server-system")
-  val aggregator: ActorRef = system.actorOf(Aggregator.props(HistoryLen), "aggregator")
+  val aggregator: ActorRef = system.actorOf(Aggregator.props(Instant.now(), HistoryLen), "aggregator")
   system.actorOf(UpstreamClient.props(new InetSocketAddress("127.0.0.1", 5555), aggregator), "upstream-client")
   system.actorOf(Server.props(new InetSocketAddress("127.0.0.1", 7777), aggregator), "server")
 
